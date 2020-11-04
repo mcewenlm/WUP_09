@@ -43,31 +43,97 @@ We are using numerical~numerical because the variables we are looking at are all
 
 <!--Graphical results here.  Make sure to show your code.  Provide appropriate labels for axes, giving units if possible, and provide a good title for the graph, too.  Use the graphical results to describe the patterns if any that exist in the data as focused toward the research question!-->
 
+ 
+  
 ```{r}
-Fishies=filter(Fishdata, Species == "Perch")
-Fishies = select(Fishies,-Species)
-pairs(Fishies)
+FishiesP=filter(Fishdata, Species == "Perch")
+FishiesP = select(FishiesP,-Species)
+pairs(FishiesP)
 ```
-
-
+  
+I would estimate from the graph above that Length2 and Width may be the best variables to try and estimate weight in a linear model for Perch fish.   
+  
+```{r}
+FishiesS=filter(Fishdata, Species == "Smelt")
+FishiesS = select(FishiesS,-Species)
+pairs(FishiesS)
+```
+    
+I would estimate from the graph above that Length1 and Length2 may be the best variables to try and estimate weight in a linear model for Smelt fish.   
+  
+  
+```{r}
+FishiesB=filter(Fishdata, Species == "Bream")
+FishiesB = select(FishiesB,-Species)
+pairs(FishiesB)
+```
+  
+I would estimate from the graph above that Length2 and Length3 may be the best variables to try and estimate weight in a linear model for Bream fish.   
+  
 ### Numerical Descriptive Results
 
+  
 ```{r}
-summary(Fishies)
+summary(FishiesP)
 ```
-
+ 
+  
+```{r}
+summary(FishiesS)
+```
+  
+ 
+  
+```{r}
+summary(FishiesB)
+```
 
 <!--Numerical results go here. Use the numerical results to describe the patterns if any that exist in the data as focused toward the research question!-->
 
+ 
+  
 ```{r}
-Perchmodel=lm(Weight~Length2+Width,data=Fishies)
+Perchmodel=lm(Weight~Length2+Width,data=FishiesP)
 summary(Perchmodel)
 ```
+ 
+  
+```{r}
+Smeltmodel=lm(Weight~Length2+Length1,data=FishiesS)
+summary(Smeltmodel)
+```
+
+  
+
+```{r}
+Breammodel=lm(Weight~Length2+Length3,data=FishiesB)
+summary(Breammodel)
+```
+  
 ```{r}
 library(leaps)
 regsubsets.out <-
     regsubsets(Weight ~ .,
-               data = Fishies,
+               data = FishiesP,
+               nbest = 1,       # 1 best model for each number of predictors
+               nvmax = NULL,    # NULL for no limit on number of variables
+               force.in = NULL, force.out = NULL,
+               method = "exhaustive")
+
+summary.out <- summary(regsubsets.out)
+as.data.frame(summary.out$outmat)
+library(car)
+subsets(regsubsets.out,statistic="adjr2",legend="bottomright",main="Adjusted R^2")
+```
+  
+According to the chart above, the best variables to estimate weight of Perch in a subset size of 2 would be height and weight.   
+  
+  
+```{r}
+library(leaps)
+regsubsets.out <-
+    regsubsets(Weight ~ .,
+               data = FishiesS,
                nbest = 1,       # 1 best model for each number of predictors
                nvmax = NULL,    # NULL for no limit on number of variables
                force.in = NULL, force.out = NULL,
@@ -79,6 +145,27 @@ library(car)
 subsets(regsubsets.out,statistic="adjr2",legend="bottomright",main="Adjusted R^2")
 ```
 
+According to the chart above, the best variables to estimate weight of Smelt in a subset size of 2 would be Length2 and weight.  
+ 
+  
+```{r}
+library(leaps)
+regsubsets.out <-
+    regsubsets(Weight ~ .,
+               data = FishiesB,
+               nbest = 1,       # 1 best model for each number of predictors
+               nvmax = NULL,    # NULL for no limit on number of variables
+               force.in = NULL, force.out = NULL,
+               method = "exhaustive")
+
+summary.out <- summary(regsubsets.out)
+as.data.frame(summary.out$outmat)
+library(car)
+subsets(regsubsets.out,statistic="adjr2",legend="bottomright",main="Adjusted R^2")
+``` 
+  
+According to the chart above, the best variables to estimate weight of Bream in a subset size of 2 would be Length2 and height.   
+  
 ## Inferential Results
 
 <!--State hypothesis clearly.  Make sure your discussion of the inferential test covers all the aspects that the test output produces, such as test statistic, p-value etc.  Make a decision about the null hypothesis, explain the assumptions on which the selected test/procedure was based, and why the chosen procedure satisfys the assumptions and is appropriate to answer the research question!-->
